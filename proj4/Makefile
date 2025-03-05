@@ -9,10 +9,8 @@ BIN_DIR = bin
 
 SRC = $(wildcard $(SRC_DIR)/*.cpp)
 TESTSRC = $(wildcard $(TEST_DIR)/*.cpp)
-OBJS = $(OBJ_DIR)/StringUtils.o $(OBJ_DIR)/StringDataSource.o $(OBJ_DIR)/StringDataSink.o $(OBJ_DIR)/DSVReader.o $(OBJ_DIR)/DSVWriter.o $(OBJ_DIR)/XMLReader.o $(OBJ_DIR)/XMLWriter.o $(OBJ_DIR)/CSVBusSystem.o $(OBJ_DIR)/OpenStreetMap.o
-
-
-TESTOBJS = $(OBJ_DIR)/StringUtilsTest.o $(OBJ_DIR)/StringDataSourceTest.o $(OBJ_DIR)/StringDataSinkTest.o $(OBJ_DIR)/DSVTest.o $(OBJ_DIR)/XMLTest.o $(OBJ_DIR)/CSVBusSystemTest.o $(OBJ_DIR)/OpenStreetMapTest.o
+OBJS = $(OBJ_DIR)/StringUtils.o $(OBJ_DIR)/StringDataSource.o $(OBJ_DIR)/StringDataSink.o $(OBJ_DIR)/DSVReader.o $(OBJ_DIR)/DSVWriter.o $(OBJ_DIR)/XMLReader.o $(OBJ_DIR)/XMLWriter.o $(OBJ_DIR)/CSVBusSystem.o $(OBJ_DIR)/OpenStreetMap.o $(OBJ_DIR)/DijkstraPathRouter.o $(OBJ_DIR)/BusSystemIndex.o $(OBJ_DIR)/TransportationPlannerCommandLine.o $(OBJ_DIR)/DijkstraTransportationPlanner.o
+TESTOBJS = $(OBJ_DIR)/StringUtilsTest.o $(OBJ_DIR)/StringDataSourceTest.o $(OBJ_DIR)/StringDataSinkTest.o $(OBJ_DIR)/DSVTest.o $(OBJ_DIR)/XMLTest.o $(OBJ_DIR)/CSVBusSystemTest.o $(OBJ_DIR)/OpenStreetMapTest.o $(OBJ_DIR)/DijkstraPathRouterTest.o $(OBJ_DIR)/CSVBusSystemIndexTest.o $(OBJ_DIR)/TPCommandLineTest.o $(OBJ_DIR)/CSVOSMTransportationPlannerTest.o
 TARGET = $(BIN_DIR)/tests
 
 
