@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -g -Iinclude -I/src -I/opt/homebrew/include
-LDFLAGS = -L/opt/homebrew/lib -lgtest -lgtest_main -lpthread -lexpat -L/usr/lib/ -lgtest -lgtest_main
+LDFLAGS = -L/opt/homebrew/lib -lgtest -lgtest_main -lpthread -lexpat -L/usr/lib/ 
 SRC_DIR = src
 TEST_DIR = testsrc
 OBJ_DIR = obj
