@@ -1,4 +1,7 @@
+//good job krustyna this works
+
 #include <gtest/gtest.h>
+
 #include "XMLReader.h"
 #include "StringUtils.h"
 #include "StringDataSource.h"
@@ -82,3 +85,4 @@ TEST(CSVBusSystemIndexer, RouteTest){
     EXPECT_TRUE(Routes.find(Route2Index) != Routes.end());
 
 }
+     
