@@ -18,7 +18,7 @@ struct CDijkstraPathRouter::SImplementation{
     struct ThisVertex{
         TVertexID ID; //this is the unique id of the vertex
         std::any Tag; //this is the tag that could be string int or any type
-        std::unordered_map<TVertexID,double> edges; //thsi stores weight of
+        std::unordered_map<TVertexID, double> edges; //thsi stores weight of
         //edges from this node to other nodes
         std::vector<TVertexID> path; //this is a list of adjacent vertices
         
@@ -27,13 +27,16 @@ struct CDijkstraPathRouter::SImplementation{
         TVertexID GetVertexID() const noexcept{
             return ID;
         }
+
         std::any GetTag() const noexcept{
             return Tag;
         }
+
         //this will return the list of connected neighbors
         std::vector<TVertexID> GetNeighbors() const noexcept{
             return path;
         }
+
         //this will get weight of an edge -> to  anieghbor
         double GetWeight(TVertexID to) const noexcept{
             auto it = edges.find(to);
@@ -42,11 +45,6 @@ struct CDijkstraPathRouter::SImplementation{
             }
             return std::numeric_limits<double>::infinity();
         }
-
-       
-       
-        
-        
 
     };
 
@@ -68,27 +66,27 @@ struct CDijkstraPathRouter::SImplementation{
     }
 
     //if the tag exists it returns the tag of a vertex
-    std::any GetVertexTag(TVertexID id) const noexcept{
-        if(id < vertices.size()){
+    std::any GetVertexTag(TVertexID id) const noexcept {
+        if (id < vertices.size()){
             return vertices[id]->GetTag();
         }
         return std::any();
     }
+
     //this adds weighted edge between the src and dest given
     bool AddEdge(TVertexID src, TVertexID dest, double weight, bool bidir = false) const noexcept{
-        if(src >= vertices.size()){
+        if(src >= vertices.size() || dest >= vertices.size() || weight < 0){
             return false;
+        }
 
-        }
-        if(dest >= vertices.size()){
-            return false;
-        }
-        vertices[src]->edges[dest] = weight;
-        vertices[src]->path.push_back(dest);
-        if(bidir){
+        vertices[src]->edges[dest] = weight; // add weight from src to dest 
+        vertices[src]->path.push_back(dest); // add directed edge to path vector
+
+        if(bidir){ // if the path can be traversed both ways, add weight from dest to src
             vertices[dest]->edges[src] = weight;
-            vertices[dest]->path.push_back(src);
+            vertices[dest]->path.push_back(src); // add directed edge to path vector
         }
+
         return true;
     }
 
@@ -98,115 +96,118 @@ struct CDijkstraPathRouter::SImplementation{
 
     //now implement dijkstra to find shortest path // the std::vector will store the shortest path 
     double FindShortestPath(TVertexID src, TVertexID dest, std::vector<TVertexID> &path) noexcept{
-    // returns path distance of path from src to dest, and fills out path with vertices.
-    //if no path, NoPathExists is returned.
+        // returns path distance of path from src to dest, and fills out path with vertices.
+        //if no path, NoPathExists is returned.
 
-    //clear any previous path 
-    path.clear();
+        //clear any previous path 
+        path.clear();
 
-    //if src or dest are invalid return no path
-    if(src >= vertices.size() || dest >= vertices.size()){
-        return NoPathExists;
-    }
-
-    //now define a priority queue to store the vertices
-    //where elements is a pair of distance and vertex id
-
-    //we will use priority queues because this should be more faster than a simple linear search of paths and our TC would
-    //be O(V^2) 
-    using QueueElement = std::pair<double,TVertexID>;
-    std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<QueueElement>> priorityQueue;
-
-    //now we will define a distance vector to store the distance from src to each vertex 
-    //initializes to nopathexists
-    std::vector<double> distance(VertexCount(),NoPathExists);
-    //now we will define a previous vector to store the previous vertex in the path
-    std::vector<TVertexID> previous(VertexCount(),InvalidVertexID);
-
-    //now initialize src vertex distance to 0 and push it into priioty queue 
-    distance[src] = 0;
-    priorityQueue.push({0,src});
-    
-    //now we will implement the dijkstra algorithm
-    while(!priorityQueue.empty()){
-        //get the vertex with the smallest distance
-        auto [dist, u] = priorityQueue.top();
-        priorityQueue.pop();
-
-        //now if current distance is bigger than the known one skip it
-        if(dist > distance[u]){
-            continue;
-        }
-        //if we reach dest vertex you stop early 
-        if(u == dest){
-           break;
+        //if src or dest are invalid return no path
+        if(src >= vertices.size() || dest >= vertices.size()){
+            return NoPathExists;
         }
 
-        //now we will iterate over the neighbors of u
-        for(TVertexID neighbor : vertices[u]->GetNeighbors()){
-            double weight = vertices[u]->GetWeight(neighbor);
+        //now define a priority queue to store the vertices
+        //where elements is a pair of distance and vertex id
 
-            // now if new calcullation is better than the known one update it
-            if(distance[u] + weight < distance[neighbor]){
-                distance[neighbor] = distance[u] + weight;
-                previous[neighbor] = u;
-                priorityQueue.push({distance[neighbor], neighbor});
+        //we will use priority queues because this should be more faster than a simple linear search of paths and our TC would
+        //be O(V^2) 
+        std::priority_queue<std::pair<TVertexID, double>, std::vector<std::pair<TVertexID, double>>, std::greater<std::pair<TVertexID, double>>> priorityq;
+
+        //now we will define a distance vector to store the distance from src to each vertex 
+        //initializes distances to NoPathExists (infinite)
+        std::vector<double> dist(VertexCount(), NoPathExists);
+        //now we will define a previous vector to store the previous vertex in the path
+        std::vector<TVertexID> previous(VertexCount(), InvalidVertexID);
+
+        //now initialize src vertex distance to 0 and push it into priority queue 
+        priorityq.push(std::make_pair(0, src));
+        dist[src] = 0;
+
+        //now we will implement the dijkstra algorithm
+        while(!priorityq.empty()){
+            //get the vertex with the smallest distance
+            TVertexID v = priorityq.top().second;
+            double distance = priorityq.top().first;
+
+            priorityq.pop();
+
+            //if we reach dest vertex you stop early 
+            if(v == dest){
+                break;
+            }
+
+            //now if current distance is bigger than the known one skip it
+            if(distance > dist[v]){
+                continue;
+            }
+
+            //now we will iterate over the neighbors of u
+            for(TVertexID neighbor : vertices[v]->GetNeighbors()){
+                double weight = vertices[v]->GetWeight(neighbor);
+
+                // now if new calcullation is better than the known one update it
+                if(dist[neighbor] > dist[v] + weight) {
+                    dist[neighbor] = dist[v] + weight;
+                    previous[neighbor] = v;
+                    priorityq.push(std::make_pair(dist[neighbor], neighbor));
+                }
             }
         }
 
-       
-    }
-    //if dest is still notpathexists no path is returned
-    if(distance[dest] == NoPathExists){
-        return NoPathExists;
-    }
-    //nmwo you have to reconstruct the path
-    for(TVertexID at = dest; at != InvalidVertexID; at = previous[at]){
-        //first make sure that if no valid previous node was found its invalid
-        if(previous[at] == InvalidVertexID){
-            return NoPathExists;
+        //nmwo you have to reconstruct the path
+        TVertexID at = dest;
+        while (at != src) {
+            path.push_back(at);
+            if (previous[at] == InvalidVertexID) {
+                return NoPathExists;
+            }
+            at = previous[at];
         }
-        path.push_back(at);
+
+        path.push_back(src); // finish off reconstruction by adding src cuz we stopped right before in loop
+
+        //now u reverese the path to make sure u have correct order from source to destination
+        std::reverse(path.begin(), path.end());
+
+        //this is the goaal now return total shortest path from dist to src to dest
+        //if dest is still notpathexists no path is returned
+        if (dist[dest] == NoPathExists){
+            return NoPathExists;
+        } else { 
+            return dist[dest];
+        }
     }
-
-    path.push_back(src);
-
-    //now u reverese the path to make sure u have correct order from source to destination
-    std::reverse(path.begin(), path.end());
-
-    //this is the goaal now return toal shortest path from disst to src to dest
-    return distance[dest];
-    }
-
-
-
-   
-
 
 };
 //now we will construct the dijkstra path router class
 CDijkstraPathRouter::CDijkstraPathRouter(){
     DImplementation = std::make_unique<SImplementation>();
-   
 }
+
 CDijkstraPathRouter::~CDijkstraPathRouter(){
 
 }
 std::size_t CDijkstraPathRouter::VertexCount() const noexcept{
     return DImplementation->VertexCount();
 }
+
 CPathRouter::TVertexID CDijkstraPathRouter::AddVertex(std::any tag) noexcept{
     return DImplementation->AddVertex(tag);
 }
+
 std::any CDijkstraPathRouter::GetVertexTag(TVertexID id) const noexcept{
     return DImplementation->GetVertexTag(id);
 }
+
 bool CDijkstraPathRouter::AddEdge(TVertexID src, TVertexID dest, double weight, bool bidir) noexcept{
     return DImplementation->AddEdge(src,dest,weight,bidir);
 }
+
 bool CDijkstraPathRouter::Precompute(std::chrono::steady_clock::time_point deadline) noexcept{
     return DImplementation->Precompute(deadline);
 }
+
 double CDijkstraPathRouter::FindShortestPath(TVertexID src, TVertexID dest, std::vector<TVertexID> &path) noexcept{
     return DImplementation->FindShortestPath(src,dest,path);
 }
